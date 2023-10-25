@@ -1,5 +1,7 @@
 # primer_app_flutter
 
+este es el codigo de mi primera App para flutter.
+Autor: Iram Alexander Gonzalez Garcia
 A new Flutter project.
 
 ## Getting Started
