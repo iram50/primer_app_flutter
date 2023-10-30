@@ -52,41 +52,32 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
-    var appState = context.watch<MyAppState>();
-    var idea = appState.current;
-    IconData icon;
-    if (appState.favoritos.contains(idea)){
-      icon = Icons.favorite;
-    }else{
-      icon = Icons.favorite_outline;
-    }
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-          Text("Idea Aleatoria"),
-          SizedBox(height: 15,),
-          BigCard(idea: appState.current),
-          SizedBox(height: 30,),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {appState.toggleFavoritos();}, 
-                icon: Icon(icon),
-                label: Text("Me gusta")),
-                SizedBox(width: 20,),
-              ElevatedButton(
-                onPressed: (){
-                  appState.getSigieuite();
-                }, 
-                child: Text("Siguiente")),
-            ],
-          )
-          ],
-        ),
-      ),
+      body: Row(
+        children: [
+          SafeArea(
+            child: NavigationRail(
+              extended: false,
+              destinations: [NavigationRailDestination(
+                icon: Icon(Icons.home), 
+                label: Text("Inicio")),
+                NavigationRailDestination(
+                  icon: Icon(Icons.favorite),
+                   label: Text("Favoritos"))
+                
+                ],
+                selectedIndex: 0,
+                onDestinationSelected: (value) {
+                  print("Seleccion: $value");
+                },
+            ) 
+          ),
+          Expanded(
+            child: Container(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: GeneratorPage(),
+            ))
+      ],)
     );
   }
 }
@@ -120,6 +111,49 @@ class BigCard extends StatelessWidget{
   }
 }
 
+
+class GeneratorPage extends StatelessWidget{
+  @override
+  Widget build(BuildContext context){
+    var appState = context.watch<MyAppState>();
+    var idea = appState.current;
+    IconData icon;
+    if (appState.favoritos.contains(idea)){
+      icon = Icons.favorite;
+    }else{
+      icon = Icons.favorite_outline;
+    }
+
+
+    return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+          Text("Idea Aleatoria"),
+          SizedBox(height: 15,),
+          BigCard(idea: appState.current),
+          SizedBox(height: 30,),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {appState.toggleFavoritos();}, 
+                icon: Icon(icon),
+                label: Text("Me gusta")),
+                SizedBox(width: 20,),
+              ElevatedButton(
+                onPressed: (){
+                  appState.getSigieuite();
+                }, 
+                child: Text("Siguiente")),
+            ],
+          )
+          ],
+        ),
+      );
+  }
+
+}
 
 
   
