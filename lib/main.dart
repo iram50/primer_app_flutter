@@ -36,15 +36,18 @@ class MyAppState extends ChangeNotifier{
 
   void getSigieuite(){
     historial.insert(0, current);
+    var animatedList = historialListKey?.currentState as AnimatedListState?;
+    animatedList?.insertItem(0);
     current= WordPair.random();
     notifyListeners();
   }
 
-  void toggleFavoritos(){
-    if (favoritos.contains(current)){
-      favoritos.remove(current);
+  void toggleFavoritos({WordPair? idea}){
+    idea = idea?? current;
+    if (favoritos.contains(idea)){
+      favoritos.remove(idea);
     }else{
-      favoritos.add(current);
+      favoritos.add(idea);
     }
     notifyListeners();
   }
@@ -153,12 +156,16 @@ class GeneratorPage extends StatelessWidget{
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-          Text("Idea Aleatoria"),
-          SizedBox(height: 15,),
+            Expanded(
+              flex: 3,
+              child: HistorialListView(),
+              ),
+          SizedBox(height: 20,),
           BigCard(idea: appState.current),
-          SizedBox(height: 30,),
+          SizedBox(height: 20,),
           Row(
             mainAxisSize: MainAxisSize.min,
+
             children: [
               ElevatedButton.icon(
                 onPressed: () {appState.toggleFavoritos();}, 
@@ -171,7 +178,8 @@ class GeneratorPage extends StatelessWidget{
                 }, 
                 child: Text("Siguiente")),
             ],
-          )
+          ),
+          Spacer(flex: 2),
           ],
         ),
       );
@@ -239,7 +247,7 @@ class _HistorialListViewState extends State<HistorialListView> {
             child: Center(
             child: TextButton.icon(
               onPressed: (){
-                appState.toggleFavoritos();
+                appState.toggleFavoritos(idea: idea);
               }, 
               icon: appState.favoritos.contains(idea)
               ? Icon(Icons.favorite, size: 12,)
