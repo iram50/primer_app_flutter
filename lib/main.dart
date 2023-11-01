@@ -30,8 +30,12 @@ class MyApp extends StatelessWidget {
 class MyAppState extends ChangeNotifier{
   var current = WordPair.random();
   var favoritos = <WordPair>[];
+  var historial = <WordPair>[];
+  
+  GlobalKey? historialListKey;
 
   void getSigieuite(){
+    historial.insert(0, current);
     current= WordPair.random();
     notifyListeners();
   }
@@ -196,6 +200,60 @@ class FavoritosPage extends StatelessWidget{
           )
       ],
       );
+  }
+}
+
+class HistorialListView extends StatefulWidget {
+  const HistorialListView({Key? key}) : super(key: key);
+
+  @override
+  State<HistorialListView> createState() => _HistorialListViewState();
+}
+
+class _HistorialListViewState extends State<HistorialListView> {
+  final _key = GlobalKey();
+
+  static const Gradient _maskingGradient = LinearGradient(
+    colors: [Colors.transparent, Colors.black],
+    stops: [0.0,0.5],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    );
+
+  @override
+  Widget build(BuildContext context) {
+    final appState = context.watch<MyAppState>();
+    appState.historialListKey = _key;
+    return ShaderMask(
+      shaderCallback: (bounds) => _maskingGradient.createShader(bounds),
+      blendMode: BlendMode.dstIn,
+      child: AnimatedList(
+        key: _key,
+        reverse: true,
+        padding: EdgeInsets.only(top:100),
+        initialItemCount: appState.historial.length,
+        itemBuilder: (context, index, animation){
+          final idea = appState.historial[index];
+          return SizeTransition(
+            sizeFactor: animation,
+            child: Center(
+            child: TextButton.icon(
+              onPressed: (){
+                appState.toggleFavoritos();
+              }, 
+              icon: appState.favoritos.contains(idea)
+              ? Icon(Icons.favorite, size: 12,)
+              : SizedBox(), 
+              label: Text(
+                idea.asLowerCase,
+                semanticsLabel: idea.asPascalCase,
+              ),
+              ),
+            )
+            );
+        }
+      )
+    );
   }
 }
   
