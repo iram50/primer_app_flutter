@@ -3,12 +3,11 @@ import 'package:english_words/english_words.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp( MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-   MyApp({super.key});
-
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +16,8 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-        
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange.shade50),
+          colorScheme:
+              ColorScheme.fromSeed(seedColor: Colors.deepOrange.shade50),
           useMaterial3: true,
         ),
         home: const MyHomePage(),
@@ -27,32 +26,46 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyAppState extends ChangeNotifier{
+class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
   var favoritos = <WordPair>[];
   var historial = <WordPair>[];
-  
+  var index = -1;
+
   GlobalKey? historialListKey;
 
-  void getSigieuite(){
+  void getSigieuite() {
     historial.insert(0, current);
     var animatedList = historialListKey?.currentState as AnimatedListState?;
     animatedList?.insertItem(0);
-    current= WordPair.random();
+    current = WordPair.random();
     notifyListeners();
   }
 
-  void toggleFavoritos({WordPair? idea}){
-    idea = idea?? current;
-    if (favoritos.contains(idea)){
+  void toggleFavoritos({WordPair? idea}) {
+    idea = idea ?? current;
+    if (favoritos.contains(idea)) {
       favoritos.remove(idea);
-    }else{
+    } else {
       favoritos.add(idea);
     }
     notifyListeners();
   }
-}
 
+  void getPrevious() {
+    if (index < historial.length - 1) {
+      if (index == -1) {
+        historial.insert(0, current);
+        var animatedList = historialListKey?.currentState as AnimatedListState?;
+        animatedList?.insertItem(0);
+        ++index;
+      }
+      ++index;
+      current = historial.elementAt(index);
+    }
+    notifyListeners();
+  }
+}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -62,152 +75,160 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex=0;
+  var selectedIndex = 0;
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     Widget page;
-    switch(selectedIndex){
-      case 0: page = GeneratorPage(); break;
-      case 1: page = FavoritosPage(); break;
+    switch (selectedIndex) {
+      case 0:
+        page = GeneratorPage();
+        break;
+      case 1:
+        page = FavoritosPage();
+        break;
       default:
-      throw UnimplementedError('No hay un widget para: $selectedIndex');
+        throw UnimplementedError('No hay un widget para: $selectedIndex');
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Scaffold(
+    return LayoutBuilder(builder: (context, constraints) {
+      return Scaffold(
           body: Row(
-            children: [
-              SafeArea(
-                child: NavigationRail(
-                  extended: constraints.maxWidth >= 600,
-                  destinations: [NavigationRailDestination(
-                    icon: Icon(Icons.home), 
-                    label: Text("Inicio")),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.favorite),
-                       label: Text("Favoritos"))
-                    
-                    ],
-                    selectedIndex: selectedIndex,
-                    onDestinationSelected: (value) {
-                      setState(() {
-                        selectedIndex = value;
-                      });
-                    },
-                ) 
-              ),
-              Expanded(
-                child: Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: page,
-                ))
-          ],)
-        );
-      }
-    );
+        children: [
+          SafeArea(
+              child: NavigationRail(
+            extended: constraints.maxWidth >= 600,
+            destinations: [
+              NavigationRailDestination(
+                  icon: Icon(Icons.home), label: Text("Inicio")),
+              NavigationRailDestination(
+                  icon: Icon(Icons.favorite), label: Text("Favoritos"))
+            ],
+            selectedIndex: selectedIndex,
+            onDestinationSelected: (value) {
+              setState(() {
+                selectedIndex = value;
+              });
+            },
+          )),
+          Expanded(
+              child: Container(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: page,
+          ))
+        ],
+      ));
+    });
   }
 }
 
-class BigCard extends StatelessWidget{
+class BigCard extends StatelessWidget {
   final WordPair idea;
-  
-  const BigCard({
-    super.key,
-    required this.idea
-  });
+
+  const BigCard({super.key, required this.idea});
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     final tema = Theme.of(context);
     final textStyle = tema.textTheme.displayMedium!.copyWith(
       color: tema.colorScheme.onPrimary,
     );
 
     return Card(
-    color: tema.colorScheme.primary,
+      color: tema.colorScheme.primary,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Text(
-          idea.asLowerCase, 
+          idea.asLowerCase,
           style: textStyle,
           semanticsLabel: "${idea.first} ${idea.second}",
-          ),
+        ),
       ),
     );
   }
 }
 
-
-class GeneratorPage extends StatelessWidget{
+class GeneratorPage extends StatelessWidget {
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     var idea = appState.current;
     IconData icon;
-    if (appState.favoritos.contains(idea)){
+    if (appState.favoritos.contains(idea)) {
       icon = Icons.favorite;
-    }else{
+    } else {
       icon = Icons.favorite_outline;
     }
 
-
     return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 3,
-              child: HistorialListView(),
-              ),
-          SizedBox(height: 20,),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 3,
+            child: HistorialListView(),
+          ),
+          SizedBox(
+            height: 20,
+          ),
           BigCard(idea: appState.current),
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
           Row(
             mainAxisSize: MainAxisSize.min,
-
             children: [
               ElevatedButton.icon(
-                onPressed: () {appState.toggleFavoritos();}, 
-                icon: Icon(icon),
-                label: Text("Me gusta")),
-                SizedBox(width: 20,),
+                  onPressed: () {
+                    appState.toggleFavoritos();
+                  },
+                  icon: Icon(icon),
+                  label: Text("Me gusta")),
+              SizedBox(
+                width: 20,
+              ),
               ElevatedButton(
-                onPressed: (){
-                  appState.getSigieuite();
-                }, 
-                child: Text("Siguiente")),
+                  onPressed: () {
+                    appState.getPrevious();
+                  },
+                  child: Text("Anterior")),
+              ElevatedButton(
+                  onPressed: () {
+                    appState.getSigieuite();
+                  },
+                  child: Text("Siguiente")),
             ],
           ),
           Spacer(flex: 2),
-          ],
-        ),
-      );
+        ],
+      ),
+    );
   }
-
 }
 
-class FavoritosPage extends StatelessWidget{
+class FavoritosPage extends StatelessWidget {
   @override
-  Widget build(BuildContext context){
-    var appState= context.watch<MyAppState>();
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
 
-    if (appState.favoritos.isEmpty){
-      return Center(child: Text("Aun no hay favoritos"),);
+    if (appState.favoritos.isEmpty) {
+      return Center(
+        child: Text("Aun no hay favoritos"),
+      );
     }
 
     return ListView(
       children: [
         Padding(
           padding: const EdgeInsets.all(20),
-          child: Text("Se han elegido ${appState.favoritos.length} favoritos"),),
-          for (var name in appState.favoritos)
+          child: Text("Se han elegido ${appState.favoritos.length} favoritos"),
+        ),
+        for (var name in appState.favoritos)
           ListTile(
             leading: Icon(Icons.favorite),
             title: Text(name.asLowerCase),
           )
       ],
-      );
+    );
   }
 }
 
@@ -223,45 +244,44 @@ class _HistorialListViewState extends State<HistorialListView> {
 
   static const Gradient _maskingGradient = LinearGradient(
     colors: [Colors.transparent, Colors.black],
-    stops: [0.0,0.5],
+    stops: [0.0, 0.5],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    );
+  );
 
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<MyAppState>();
     appState.historialListKey = _key;
     return ShaderMask(
-      shaderCallback: (bounds) => _maskingGradient.createShader(bounds),
-      blendMode: BlendMode.dstIn,
-      child: AnimatedList(
-        key: _key,
-        reverse: true,
-        padding: EdgeInsets.only(top:100),
-        initialItemCount: appState.historial.length,
-        itemBuilder: (context, index, animation){
-          final idea = appState.historial[index];
-          return SizeTransition(
-            sizeFactor: animation,
-            child: Center(
-            child: TextButton.icon(
-              onPressed: (){
-                appState.toggleFavoritos(idea: idea);
-              }, 
-              icon: appState.favoritos.contains(idea)
-              ? Icon(Icons.favorite, size: 12,)
-              : SizedBox(), 
-              label: Text(
-                idea.asLowerCase,
-                semanticsLabel: idea.asPascalCase,
-              ),
-              ),
-            )
-            );
-        }
-      )
-    );
+        shaderCallback: (bounds) => _maskingGradient.createShader(bounds),
+        blendMode: BlendMode.dstIn,
+        child: AnimatedList(
+            key: _key,
+            reverse: true,
+            padding: EdgeInsets.only(top: 100),
+            initialItemCount: appState.historial.length,
+            itemBuilder: (context, index, animation) {
+              final idea = appState.historial[index];
+              return SizeTransition(
+                  sizeFactor: animation,
+                  child: Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        appState.toggleFavoritos(idea: idea);
+                      },
+                      icon: appState.favoritos.contains(idea)
+                          ? Icon(
+                              Icons.favorite,
+                              size: 12,
+                            )
+                          : SizedBox(),
+                      label: Text(
+                        idea.asLowerCase,
+                        semanticsLabel: idea.asPascalCase,
+                      ),
+                    ),
+                  ));
+            }));
   }
 }
-  
